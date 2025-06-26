@@ -3,17 +3,20 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 class LoginPage:
-    LOGIN_LINK = (By.LINK_TEXT, "My Account")
-    LOGIN_BUTTON = (By.LINK_TEXT, "Login")
-    # ... other locators ...
-
     def __init__(self, driver):
         self.driver = driver
+        self.url = "https://www.saucedemo.com/"
 
     def go_to_login(self):
-        WebDriverWait(self.driver, 30).until(
-            EC.visibility_of_element_located(self.LOGIN_LINK)
-        ).click()
-        WebDriverWait(self.driver, 30).until(
-            EC.visibility_of_element_located(self.LOGIN_BUTTON)
-        ).click()
+        self.driver.get(self.url)
+        WebDriverWait(self.driver, 10).until(
+            EC.visibility_of_element_located((By.ID, "user-name"))
+        )
+
+    def login(self, username, password):
+        self.driver.find_element(By.ID, "user-name").send_keys(username)
+        self.driver.find_element(By.ID, "password").send_keys(password)
+        self.driver.find_element(By.ID, "login-button").click()
+
+    def get_error_message(self):
+        return self.driver.find_element(By.CLASS_NAME, "error-message-container").text
