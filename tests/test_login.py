@@ -1,21 +1,21 @@
-import yaml
-import pytest
-from selenium import webdriver
 from pages.login_page import LoginPage
+from pages.product_page import ProductPage
+from pages.cart_page import CartPage
+from pages.checkout_page import CheckoutPage
 
-# Load config
-with open('config/config.yaml') as f:
-    config = yaml.safe_load(f)
+def test_checkout(driver):
+    login = LoginPage(driver)
+    login.go_to_login()
+    login.login("standard_user", "secret_sauce")
 
-@pytest.fixture
-def driver():
-    driver = webdriver.Chrome()
-    driver.get(config["base_url"])
-    yield driver
-    driver.quit()
+    product_page = ProductPage(driver)
+    product_page.add_to_cart()
 
-def test_login(driver):
-    login_page = LoginPage(driver)
-    login_page.go_to_login()
-    login_page.login(config["username"], config["password"])
-    assert "My Account" in driver.title
+    cart = CartPage(driver)
+    cart.go_to_cart()
+
+    checkout = CheckoutPage(driver)
+    checkout.fill_information("John", "Doe", "12345")
+    checkout.finish_checkout()
+
+    assert "checkout-complete" in checkout.driver.current_url
